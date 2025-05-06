@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Indent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white text-center">
+            <h4>Create Indent</h4>
+          </div>
+          <div class="card-body">
+            <form id="indentForm">
+              <input type="text" id="itemName" class="form-control mb-3" placeholder="Item Name" required />
+              <input type="number" id="quantity" class="form-control mb-3" placeholder="Quantity" required />
+              <input type="number" id="perPieceCost" class="form-control mb-3" placeholder="Per Piece Cost" required />
+              <textarea id="description" class="form-control mb-3" placeholder="Description" required></textarea>
+              <button type="submit" class="btn btn-success w-100">Submit Indent</button>
+            </form>
+            <div class="mt-3 text-center">
+              <a href="login.html">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const indentForm = document.getElementById("indentForm");
+
+      indentForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          alert("You are not logged in!");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const indentData = {
+          itemName: document.getElementById("itemName").value.trim(),
+          quantity: parseInt(document.getElementById("quantity").value),
+          perPieceCost: parseFloat(document.getElementById("perPieceCost").value),
+          description: document.getElementById("description").value.trim()
+        };
+
+        try {
+          const res = await fetch("http://localhost:8080/api/indent/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(indentData)
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.message || "Indent creation failed");
+          }
+
+          alert("Indent created successfully!");
+          indentForm.reset();
+        } catch (err) {
+          alert("Indent creation error: " + err.message);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
